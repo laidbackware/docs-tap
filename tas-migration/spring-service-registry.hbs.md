@@ -35,6 +35,19 @@ At a high level, SSR on Tanzu Application Service and SSR on Tanzu Application P
   Eureka server, based on a binding `type` key in the binding secret, and injects `eureka.client.*`
   properties into the app by using connection information in the mounted secret.
 
+## <a id="migration-strategies"></a> Migration strategies
+
+The recommended deployment pattern for Service Registry on TAS is to run a Service Registry for each high level business application, as Eureka the underlying technology in Service Registry is not built to be a business wide registry. As a result of this the expected topology on TAS will be a collection of Service Registries, each associated with a collection of TAS apps.
+
+It is recommended to move all TAS apps associated with a single service registry at the same time. This is because it is not possible to peer replicate from the TAP based Service Registry back to the TAS based Service Registry and without this replication the TAS Service Registry cannot be complete.
+
+If on TAS peer replication is used between Service Registry instances to share common services between many applications, then the TAP service registry must be exposed outside the cluster using a ### and the shared TAS Service Registry set to replicate towards the TAP registry. Then once all TAS apps have been migrated, then shared registry and it's apps can be migrated.
+
+!! Open items
+- How do you setup replication between TAP based service registries?
+- Is the TAP SR HTTP based, so would allow exposing outside the TAP cluster via an ingress controller?
+- Is any authN/Z possible on the TAP SR? If not this will likely rule it out for most customers.
+
 ## <a id="deploy-app-to-tas"></a> Deploy the `greeter` app to Tanzu Application Service
 
 This section describes, at a high level, the steps for deploying an example `greeter` app
